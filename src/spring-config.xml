@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="service">
+        <!--注解声明-->
+    </context:component-scan>
+
+
+    <!--配置数据库相关，一层一层依赖-->
+<!--    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/mxd"/>
+        <property name="username" value="=root"/>
+        <property name="password" value="@#MA847547125**"/>
+        <property name="maxActive" value="10"/>
+    </bean>
+    &lt;!&ndash;配置事物管理器txManager&ndash;&gt;
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    &lt;!&ndash;    增加对事务的支持（DB）,×××××××××提前增加命名空间×××××××××××××8&ndash;&gt;
+    <tx:annotation-driven transaction-manager="txManager"></tx:annotation-driven>-->
+
+    <!--1增加事务管理器-->
+
+
+
+    <bean id="studentDao" class="dao.IStudentDaoImpl"></bean>
+    <bean id="studentService" class="service.IStudentServiceImpl">
+        <property name="studentDao" ref="studentDao"></property>
+    </bean>
+    <!--&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
+
+
+
+    <!--配置前置通知-->
+  <!--  <bean id="studnetService2" class="service.IStudentServiceImpl">
+        <property name="studentDao" ref="studnetDao"></property>
+    </bean>-->
+    <!--前置通知类-->
+    <bean id="logBefore" class="aop.LogBefore">
+    </bean>
+    <!--后置通知类-->
+    <bean class="aop.LogAfter" id="logAfter"></bean>
+    <!--异常通知类-->
+    <bean class="aop.LogException" id="logException"></bean>
+    <!--将add方法和通知连起来线-->
+    <aop:config >
+        <!--配置切入点,增加或者删除连接-->
+        <aop:pointcut id="pointcut" expression="execution(public void service.IStudentServiceImpl.*(*))"/>
+        <!--advisor连接切入点和切面的线-->
+        <aop:advisor advice-ref="logBefore" pointcut-ref="pointcut"/>
+    </aop:config>
+    <!--后置通知配置-->
+    <aop:config >
+        <!--配置切入点,增加或者删除连接-->
+        <aop:pointcut id="pointcut" expression="execution(public void service.IStudentServiceImpl.*(*))"/>
+        <!--advisor连接切入点和切面的线-->
+        <aop:advisor advice-ref="logAfter" pointcut-ref="pointcut"/>
+    </aop:config>
+    <!--异常通知配置-->
+   <!-- <aop:config >
+        &lt;!&ndash;配置切入点,增加或者删除连接&ndash;&gt;
+        <aop:pointcut id="pointcut2" expression="execution(public void service.IStudentServiceImpl.*(*))"/>
+        &lt;!&ndash;advisor连接切入点和切面的线&ndash;&gt;
+        <aop:advisor advice-ref="logException" pointcut-ref="pointcut2"/>
+    </aop:config>-->
+
+    <!--环绕通知配置-->
+    <bean class="aop.LogAround" id="logAround"></bean>
+    <aop:config >
+    <!--配置切入点,增加或者删除连接-->
+    <aop:pointcut id="pointcut" expression="execution(public void service.IStudentServiceImpl.*(*))"/>
+    <!--advisor连接切入点和切面的线-->
+    <aop:advisor advice-ref="logAround" pointcut-ref="pointcut"/>
+    </aop:config>
+
+    <!--注解的做法-->
+    <!--①用bean配-->
+    <!--<bean class="aop.LogAspectAnnotation" id="annotation"></bean>-->
+    <!--②用注解配-->
+    <context:component-scan base-package="aop"></context:component-scan>
+    <aop:aspectj-autoproxy><!--设置自动注解--></aop:aspectj-autoproxy>
+</beans>
